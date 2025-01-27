@@ -65,14 +65,23 @@ export const UploadArea = () => {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('アップロードに失敗しました');
+      const data = await response.json();
+      console.log('Upload response:', data);
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'アップロードに失敗しました');
       }
 
-      const data = await response.json();
-      console.log('Upload successful:', data);
+      if (!data.analysis) {
+        throw new Error('画像分析結果が取得できませんでした');
+      }
+
       setData(data);
       setAnalysisResult(data.analysis);
+      console.log('Upload and analysis successful:', {
+        photoId: data.photo?.id,
+        analysis: data.analysis
+      });
     } catch (error) {
       console.error('Error uploading file:', error);
       setError('アップロードに失敗しました。もう一度お試しください。');

@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Photo {
+  id        Int      @id @default(autoincrement())
+  filePath  String
+  words     Word[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Word {
+  id             Int              @id @default(autoincrement())
+  spanish        String
+  japanese       String
+  example        String?
+  partOfSpeech   String
+  photo          Photo            @relation(fields: [photoId], references: [id])
+  photoId        Int
+  learningStatus LearningProgress?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model LearningProgress {
+  id             Int      @id @default(autoincrement())
+  word           Word     @relation(fields: [wordId], references: [id])
+  wordId         Int      @unique
+  status         String   // 未学習/学習中/習得済み
+  lastQuizDate   DateTime?
+  correctCount   Int      @default(0)
+  incorrectCount Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

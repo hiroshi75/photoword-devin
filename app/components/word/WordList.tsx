@@ -87,6 +87,13 @@ export const WordList = ({ photoId, imageDescription }: WordListProps) => {
                   <h3 className="text-xl font-bold">{word.spanish}</h3>
                   <p className="text-gray-600">[{word.partOfSpeech}]{word.japanese}</p>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowQuiz(true)}
+                >
+                  クイズモードへ
+                </Button>
               </div>
               {word.example && (
                 <p className="text-sm text-gray-500 mt-2">

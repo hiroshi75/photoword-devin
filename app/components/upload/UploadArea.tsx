@@ -13,6 +13,22 @@ export const UploadArea = () => {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [data, setData] = useState<{ photo?: { id: number } } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDebugMode] = useState(process.env.NODE_ENV === 'development');
+
+  const loadTestImage = async () => {
+    try {
+      const response = await fetch('/uploads/test1_restaurant.jpg');
+      const blob = await response.blob();
+      const file = new File([blob], 'test1_restaurant.jpg', { type: 'image/jpeg' });
+      setFile(file);
+      setPreview('/uploads/test1_restaurant.jpg');
+      setAnalysisResult(null);
+      setError(null);
+    } catch (error) {
+      console.error('Error loading test image:', error);
+      setError('テスト画像の読み込みに失敗しました。');
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -92,6 +108,17 @@ export const UploadArea = () => {
             <p className="text-sm text-gray-500">
               対応形式: JPG, JPEG, PNG
             </p>
+            {isDebugMode && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  loadTestImage();
+                }}
+                className="mt-4"
+              >
+                テスト画像を読み込む
+              </Button>
+            )}
           </div>
         )}
       </div>

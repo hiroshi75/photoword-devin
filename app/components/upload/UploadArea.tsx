@@ -4,12 +4,14 @@ import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { WordList } from "@/app/components/word/WordList";
 
 export const UploadArea = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [data, setData] = useState<{ photo?: { id: number } } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -51,9 +53,10 @@ export const UploadArea = () => {
         throw new Error('アップロードに失敗しました');
       }
 
-      const data = await response.json();
-      console.log('Upload successful:', data);
-      setAnalysisResult(data.analysis);
+      const responseData = await response.json();
+      console.log('Upload successful:', responseData);
+      setData(responseData);
+      setAnalysisResult(responseData.analysis);
     } catch (error) {
       console.error('Error uploading file:', error);
       setError('アップロードに失敗しました。もう一度お試しください。');
@@ -104,10 +107,13 @@ export const UploadArea = () => {
             <p className="text-red-500">{error}</p>
           )}
           {analysisResult && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-bold mb-2">画像分析結果:</h3>
-              <p>{analysisResult}</p>
-            </div>
+            <>
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg w-full">
+                <h3 className="font-bold mb-2">画像分析結果:</h3>
+                <p>{analysisResult}</p>
+              </div>
+              <WordList photoId={data?.photo?.id} imageDescription={analysisResult} />
+            </>
           )}
         </div>
       )}

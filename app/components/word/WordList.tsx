@@ -21,6 +21,7 @@ export const WordList = ({ photoId, imageDescription }: WordListProps) => {
   const [words, setWords] = useState<Word[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showQuiz, setShowQuiz] = useState(false);
 
   const generateWords = async () => {
     setIsLoading(true);
@@ -53,46 +54,55 @@ export const WordList = ({ photoId, imageDescription }: WordListProps) => {
     <div className="w-full max-w-2xl mx-auto p-4">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">単語リスト</h2>
-        <Button
-          onClick={generateWords}
-          disabled={isLoading}
-        >
-          {isLoading ? "生成中..." : "単語を生成"}
-        </Button>
+        <div className="space-x-2">
+          <Button
+            onClick={generateWords}
+            disabled={isLoading}
+          >
+            {isLoading ? "生成中..." : "単語を生成"}
+          </Button>
+          {words.length > 0 && (
+            <Button
+              onClick={() => setShowQuiz(!showQuiz)}
+              variant="outline"
+            >
+              {showQuiz ? "単語リストを表示" : "クイズモードを開始"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {error && (
         <p className="text-red-500 mb-4">{error}</p>
       )}
 
-      {words.length > 0 && (
-        <>
-          <div className="space-y-4 mb-8">
-            {words.map((word) => (
-              <div
-                key={word.id}
-                className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="text-xl font-bold">{word.spanish}</h3>
-                    <p className="text-gray-600">[{word.partOfSpeech}]{word.japanese}</p>
-                  </div>
+      {words.length > 0 && !showQuiz && (
+        <div className="space-y-4 mb-8">
+          {words.map((word) => (
+            <div
+              key={word.id}
+              className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-xl font-bold">{word.spanish}</h3>
+                  <p className="text-gray-600">[{word.partOfSpeech}]{word.japanese}</p>
                 </div>
-                {word.example && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    例文: {word.example}
-                  </p>
-                )}
               </div>
-            ))}
-          </div>
+              {word.example && (
+                <p className="text-sm text-gray-500 mt-2">
+                  例文: {word.example}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">クイズモード</h2>
-            <QuizSection words={words} />
-          </div>
-        </>
+      {words.length > 0 && showQuiz && (
+        <div className="mt-8">
+          <QuizSection words={words} />
+        </div>
       )}
     </div>
   );

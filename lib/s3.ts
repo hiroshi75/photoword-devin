@@ -13,12 +13,17 @@ import path from "path";
 // });
 
 export async function uploadImage(file: File): Promise<string> {
-  const buffer = Buffer.from(await file.arrayBuffer());
-  
-  // 画像の最適化
-  // 画像フォーマットを自動検出して適切な形式で保存
-  const image = sharp(buffer);
-  const metadata = await image.metadata();
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // 画像の最適化
+    // 画像フォーマットを自動検出して適切な形式で保存
+    const image = sharp(buffer);
+    const metadata = await image.metadata();
+    
+    if (!metadata.format) {
+      throw new Error('サポートされていない画像形式です');
+    }
   
   let optimizedBuffer;
   if (metadata.format === 'jpeg' || metadata.format === 'jpg') {
@@ -48,16 +53,25 @@ export async function uploadImage(file: File): Promise<string> {
       .toBuffer();
   }
 
-  // 一時的にpublicディレクトリに保存
-  const fileName = `${Date.now()}-${file.name}`;
-  const filePath = `/uploads/${fileName}`;
-  const fullPath = path.join(process.cwd(), 'public', filePath);
-  
-  // ディレクトリが存在することを確認
-  await fs.mkdir(path.dirname(fullPath), { recursive: true });
-  
-  // ファイルを保存
-  await fs.writeFile(fullPath, optimizedBuffer);
-  
-  return filePath;
+  try {
+    // 一時的にpublicディレクトリに保存
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `/uploads/${fileName}`;
+    const fullPath = path.join(process.cwd(), 'public', filePath);
+    
+    // ディレクトリが存在することを確認
+    await fs.mkdir(path.dirname(fullPath), { recursive: true });
+    
+    // ファイルを保存
+    await fs.writeFile(fullPath, optimizedBuffer);
+    
+    return filePath;
+  } catch (error) {
+    console.error('File system error:', error);
+    throw new Error('ファイルの保存に失敗しました');
+  }
+  } catch (error) {
+    console.error('Image processing error:', error);
+    throw error instanceof Error ? error : new Error('画像の処理に失敗しました');
+  }
 }

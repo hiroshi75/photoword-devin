@@ -21,8 +21,7 @@ export async function POST(request: NextRequest) {
     const filePath = await uploadImage(file);
 
     // 画像を解析
-    const imageUrl = `${request.nextUrl.origin}${filePath}`;
-    const analysisResult = await analyzeImage(imageUrl);
+    const analysisResult = await analyzeImage(file);
 
     // データベースに保存
     const photo = await prisma.photo.create({
@@ -38,8 +37,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'アップロードに失敗しました';
     return NextResponse.json(
-      { error: 'アップロードに失敗しました' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

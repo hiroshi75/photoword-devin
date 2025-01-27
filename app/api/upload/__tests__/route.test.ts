@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { POST } from '../route';
 import { analyzeImage } from '@/lib/image-analysis';
 import path from 'path';

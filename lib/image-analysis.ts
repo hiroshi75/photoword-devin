@@ -13,18 +13,25 @@ const llm = new ChatBedrock({
   },
 });
 
-export async function analyzeImage(imageUrl: string) {
+export async function analyzeImage(file: File) {
   try {
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = file.type;
+
+
     const response = await llm.invoke([
       new HumanMessage({
         content: [
           {
-            type: "image_url",
-            image_url: imageUrl,
-          },
-          {
             type: "text",
             text: "この画像に写っているものを日本語で説明してください。主要な物体や特徴を3-5個程度リストアップしてください。",
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${mimeType};base64,${base64}`,
+            },
           },
         ],
       }),
